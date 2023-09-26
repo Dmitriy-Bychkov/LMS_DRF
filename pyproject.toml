@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "lms-drf"
+version = "0.1.0"
+description = ""
+authors = ["Dmitriy Bychkov <582620@gmail.com>"]
+readme = "README.md"
+packages = [{include = "lms_drf"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.5"
+psycopg2-binary = "^2.9.7"
+pillow = "^10.0.1"
+djangorestframework = "^3.14.0"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
