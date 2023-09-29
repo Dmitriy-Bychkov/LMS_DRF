@@ -1,7 +1,9 @@
-from rest_framework import viewsets, generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
+from rest_framework import generics, viewsets
 
-from education.models import Course, Lesson
-from education.serializers import CourseSerializer, LessonSerializer
+from education.models import Course, Lesson, Payments
+from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -42,3 +44,22 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     """ Generic - класс для удаления урока """
 
     queryset = Lesson.objects.all()
+
+
+class PaymentsListAPIView(generics.ListAPIView):
+    """ Generic - класс для вывода списка платежей """
+
+    serializer_class = PaymentsSerializer
+    queryset = Payments.objects.all()
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    # Определяем фильтрацию по нужным нам полям
+    filterset_fields = ('course', 'lesson', 'owner', 'payment_method',)
+    # Определяем фильтрацию по дате
+    ordering_fields = ('payment_date',)
+
+
+class PaymentsRetrieveAPIView(generics.RetrieveAPIView):
+    """ Generic - класс для просмотра платежа """
+
+    serializer_class = PaymentsSerializer
+    queryset = Payments.objects.all()
