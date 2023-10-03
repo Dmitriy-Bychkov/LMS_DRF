@@ -12,7 +12,7 @@ class Course(models.Model):
     preview = models.ImageField(upload_to='courses/', verbose_name='изображение курса', **NULLABLE)
     description = models.TextField(verbose_name='описание курса')
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name='владелец курса',
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец курса',
                               **NULLABLE)
 
     def __str__(self):
@@ -59,7 +59,7 @@ class Payments(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='сумма оплаты')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, verbose_name='способ оплаты')
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name='владелец платежа',
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец платежа',
                               **NULLABLE)
 
     def __str__(self):
