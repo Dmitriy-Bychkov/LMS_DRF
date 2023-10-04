@@ -34,6 +34,9 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='lessons/', verbose_name='изображение урока', **NULLABLE)
     video_url = models.URLField(verbose_name='ссылка на видео урока', **NULLABLE)
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец урока',
+                              **NULLABLE)
+
     def __str__(self):
         return f'{self.name}, {self.description}, {self.preview}'
 
