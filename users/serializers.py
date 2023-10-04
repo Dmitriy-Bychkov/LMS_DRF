@@ -17,4 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     # Получаем все поля для дополнительного поля платежей с фильтрацией по пользователю
     def get_payments(self, owner):
+        # Если текущий пользователь не является владельцем профиля, то история платежей не отображается
+        if self.context['request'].user != owner:
+            return None
         return PaymentsForOwnerSerializer(Payments.objects.filter(owner=owner), many=True).data
+
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    """ Сериализатор для публичной информации о пользователе """
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'role']
