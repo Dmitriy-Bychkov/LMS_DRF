@@ -5,6 +5,7 @@ from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from education.models import Course, Lesson, Payments
+from education.paginators import EducationPaginator
 from education.permissions import IsModeratorOrReadOnly, IsCourseOrLessonOwner, IsPaymentOwner, IsCourseOwner
 from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer
 from users.models import UserRoles
@@ -15,6 +16,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, IsModeratorOrReadOnly | IsCourseOwner]
+    pagination_class = EducationPaginator
 
     def get_queryset(self):
         """ Переопределяем queryset, чтобы доступ к обьекту имели только его владельцы и модератор """
@@ -63,6 +65,7 @@ class LessonListAPIView(generics.ListAPIView):
 
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsModeratorOrReadOnly | IsCourseOrLessonOwner]
+    pagination_class = EducationPaginator
 
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
