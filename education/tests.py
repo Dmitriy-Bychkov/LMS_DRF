@@ -269,26 +269,26 @@ class SubscriptionTestCase(APITestCase):
             'is_subscribed': False
         }
 
-        response = self.client.post(
-            reverse('education:subscription-list'),
+        response = self.client.patch(
+            reverse('education:subscription-detail', kwargs={'id': self.subscription.pk}),
             data=data,
             HTTP_AUTHORIZATION=self.token
         )
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_201_CREATED
+            status.HTTP_200_OK
         )
 
         self.assertEqual(
             Subscription.objects.all().count(),
-            2
+            1
         )
 
         self.assertEqual(
             response.json(),
             {
-                "id": 7,
+                "id": self.subscription.pk,
                 "is_subscribed": False,
                 "user": self.user.pk,
                 "course": self.course.pk
