@@ -28,7 +28,7 @@ class LessonTestCase(APITestCase):
     def test_lesson_create(self):
         """ Тестирование создания урока """
 
-        data = {
+        expected_data = {
             "course": self.course.name,
             "name": "TEST1",
             "description": "TEST1",
@@ -37,7 +37,7 @@ class LessonTestCase(APITestCase):
         }
         response = self.client.post(
             reverse('education:lesson_create'),
-            data=data,
+            data=expected_data,
             HTTP_AUTHORIZATION=self.token
         )
 
@@ -75,8 +75,6 @@ class LessonTestCase(APITestCase):
             response.status_code,
             status.HTTP_200_OK
         )
-
-        # print(response.json())
 
         self.assertEqual(
             response.json(),
@@ -128,14 +126,14 @@ class LessonTestCase(APITestCase):
         """ Тестирование обновления урока """
 
         # Первый вариант обновления данных
-        data = {
+        expected_data = {
             "course": self.course.name,
             "name": "TEST2",
             "video_url": "https://youtube.com/test2/"
         }
         response = self.client.patch(
             reverse('education:lesson_update', kwargs={'pk': self.lesson.pk}),
-            data=data,
+            data=expected_data,
             HTTP_AUTHORIZATION=self.token
         )
 
@@ -158,7 +156,7 @@ class LessonTestCase(APITestCase):
         )
 
         # Второй вариант обновления данных
-        data = {
+        expected_data = {
             "course": self.course.name,
             "name": "TEST3",
             "description": "TEST3",
@@ -167,7 +165,7 @@ class LessonTestCase(APITestCase):
 
         response = self.client.put(
             reverse('education:lesson_update', kwargs={'pk': self.lesson.pk}),
-            data=data,
+            data=expected_data,
             HTTP_AUTHORIZATION=self.token
         )
 
@@ -228,7 +226,7 @@ class SubscriptionTestCase(APITestCase):
     def test_create_subscription(self):
         """ Тестирование подписки на курс """
 
-        data = {
+        expected_data = {
             'user': self.user.pk,
             'course': self.course.pk,
             'is_subscribed': True
@@ -236,7 +234,7 @@ class SubscriptionTestCase(APITestCase):
 
         response = self.client.post(
             reverse('education:subscription-list'),
-            data=data,
+            data=expected_data,
             HTTP_AUTHORIZATION=self.token
         )
 
@@ -263,7 +261,7 @@ class SubscriptionTestCase(APITestCase):
     def test_unsubscribe(self):
         """ Тестирование отписки на курс """
 
-        data = {
+        expected_data = {
             'user': self.user.pk,
             'course': self.course.pk,
             'is_subscribed': False
@@ -271,7 +269,7 @@ class SubscriptionTestCase(APITestCase):
 
         response = self.client.patch(
             reverse('education:subscription-detail', kwargs={'id': self.subscription.pk}),
-            data=data,
+            data=expected_data,
             HTTP_AUTHORIZATION=self.token
         )
 
