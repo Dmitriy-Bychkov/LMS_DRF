@@ -4,10 +4,10 @@ from rest_framework.filters import OrderingFilter
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from education.models import Course, Lesson, Payments
+from education.models import Course, Lesson, Payments, Subscription
 from education.paginators import EducationPaginator
 from education.permissions import IsModeratorOrReadOnly, IsCourseOrLessonOwner, IsPaymentOwner, IsCourseOwner
-from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer
+from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer
 from users.models import UserRoles
 
 
@@ -177,3 +177,17 @@ class PaymentsRetrieveAPIView(generics.RetrieveAPIView):
             return Payments.objects.all()
         else:
             return Payments.objects.filter(owner=self.request.user)
+
+
+class SubscriptionViewSet(viewsets.ModelViewSet):
+    """ ViewSet - набор основных CRUD действий над подписками на курсы """
+
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+    lookup_field = 'id'
+
+    def perform_create(self, serializer):
+        """ Переопределение метода создания подписки, чтобы сохранять текущий статус подписки True или False """
+
+        new_subscription = serializer.save(user=self.request.user)  # Сохраняем связь пользователя
+        new_subscription.save()
