@@ -47,11 +47,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
+    'corsheaders',
+    'drf_yasg',
+
     'users',
     'education',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -157,3 +161,14 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=500),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "https://stripe.com"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+
+]
+
+CORS_ALLOW_ALL_ORIGINS = False
