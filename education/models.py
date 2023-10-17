@@ -11,6 +11,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100, verbose_name='название курса')
     preview = models.ImageField(upload_to='courses/', verbose_name='изображение курса', **NULLABLE)
     description = models.TextField(verbose_name='описание курса')
+    amount = models.PositiveIntegerField(default=0, verbose_name='цена')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец курса',
                               **NULLABLE)
@@ -33,6 +34,7 @@ class Lesson(models.Model):
     description = models.TextField(verbose_name='описание урока')
     preview = models.ImageField(upload_to='lessons/', verbose_name='изображение урока', **NULLABLE)
     video_url = models.URLField(verbose_name='ссылка на видео урока', **NULLABLE)
+    amount = models.PositiveIntegerField(default=0, verbose_name='цена')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец урока',
                               **NULLABLE)
@@ -59,11 +61,12 @@ class Payments(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, **NULLABLE, related_name='payments')
 
     payment_date = models.DateTimeField(default=timezone.now, verbose_name='дата оплаты')
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='сумма оплаты')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, verbose_name='способ оплаты')
+    amount = models.IntegerField(verbose_name='сумма оплаты', **NULLABLE)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, verbose_name='способ оплаты',
+                                      default='transfer')
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='владелец платежа',
-                              **NULLABLE)
+                              related_name='payment_user', **NULLABLE)
 
     def __str__(self):
         return f'{self.lesson if self.lesson else self.course} - {self.amount}'
