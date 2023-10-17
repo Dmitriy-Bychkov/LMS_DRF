@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 from education.models import Course, Lesson, Payments, Subscription
+from education.services import create_product, get_url
 from education.validators import UrlValidator
 from users.models import User
 
@@ -81,6 +82,38 @@ class PaymentsForOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payments
         fields = ['id', 'amount', 'payment_date', 'payment_method']
+
+
+class PaymentCreateSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания платежа через Stripe """
+
+    payment_url = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    # Можно указать это поле, если хотим указывать свою цену (не ту что в базе данных за курс или урок)
+    # amount = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = Payments
+        fields = ['id', 'price', 'payment_method', 'course', 'lesson', 'payment_url']
+        read_only_fields = ['id', 'price', 'payment_url']
+
+    def get_payment_url(self, obj):
+        """ Получение дополнительного поля - payment_url """
+
+        price = create_product(obj)
+        return get_url(price)
+
+    def get_price(self, payment):
+        """ Получение дополнительного поля - price """
+
+        if payment.course:
+            price = payment.course.amount
+        elif payment.lesson:
+            price = payment.lesson.amount
+        else:
+            raise ValueError('Не указано за что платить, укажите ссылку на курс или урок!')
+        return price
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
