@@ -7,7 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from education.models import Course, Lesson, Payments, Subscription
 from education.paginators import EducationPaginator
 from education.permissions import IsModeratorOrReadOnly, IsCourseOrLessonOwner, IsPaymentOwner, IsCourseOwner
-from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer
+from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer, \
+    PaymentCreateSerializer
+
 from users.models import UserRoles
 
 
@@ -130,7 +132,7 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 class PaymentsCreateAPIView(generics.CreateAPIView):
     """ Generic - класс для создания нового платежа """
 
-    serializer_class = PaymentsSerializer
+    serializer_class = PaymentCreateSerializer
     permission_classes = [IsAuthenticated, IsPaymentOwner]
 
     def perform_create(self, serializer):
