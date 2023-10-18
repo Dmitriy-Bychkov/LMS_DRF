@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_yasg',
+    'django_celery_beat',
 
     'users',
     'education',
@@ -170,3 +171,6 @@ CORS_ALLOW_ALL_ORIGINS = False
 # Stripe API-settings
 STRIPE_PK = os.getenv('STRIPE_PUBLISH_KEY')
 STRIPE_SK = os.getenv('STRIPE_SECRET_KEY')
+
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
