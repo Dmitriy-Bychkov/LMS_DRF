@@ -11,6 +11,7 @@ from education.serializers import CourseSerializer, LessonSerializer, PaymentsSe
     PaymentCreateSerializer
 
 from users.models import UserRoles
+from education.tasks import subscriber_notify
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -61,6 +62,9 @@ class LessonCreateAPIView(generics.CreateAPIView):
         new_lesson.owner = self.request.user
         new_lesson.save()
 
+        # запускаем отложенную задачу по информированию подписчиков курса о добалении нового урока
+        subscriber_notify.delay(new_lesson.course_id)
+
 
 class LessonListAPIView(generics.ListAPIView):
     """ Generic - класс для вывода списка уроков """
@@ -106,6 +110,15 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
             return Lesson.objects.all()
         else:
             return Lesson.objects.filter(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        """ Переопределяем метод изменения урока """
+
+        changed_lesson = serializer.save()
+        changed_lesson.save()
+
+        # запускаем отложенную задачу по информированию подписчиков курса о изменениях уроков курса
+        subscriber_notify.delay(changed_lesson.course_id)
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
