@@ -23,5 +23,5 @@ def subscriber_notify(course_id):
                 f'Скорее посетите наш сайт, чтобы посмотреть что изменилось в курсе!')
             recipient_list.append(subscription.user.email)
 
-            # Вызываем функцию отправки сообщения на email подписчика
-            send_mail_task(subject, message, recipient_list)
+        # Вызываем функцию отправки сообщения на email подписчика
+        send_mail_task(subject, message, recipient_list)
