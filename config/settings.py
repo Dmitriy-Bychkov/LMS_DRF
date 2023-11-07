@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -175,6 +175,13 @@ STRIPE_SK = os.getenv('STRIPE_SECRET_KEY')
 
 CELERY_BROKER_URL = os.getenv('CACHE_LOCATION')
 CELERY_RESULT_BACKEND = os.getenv('CACHE_LOCATION')
+CELERY_BEAT_SCHEDULE = {
+    'user_ban': {
+        'task': 'user_ban',
+        'schedule': timedelta(minutes=1)
+    },
+}
+
 
 # Настройка почтового сервиса Яндекс для отправки электронной почты
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
