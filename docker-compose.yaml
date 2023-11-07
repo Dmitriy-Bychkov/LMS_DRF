@@ -9,12 +9,14 @@ services:
 
   db:
     image: postgres
+    env_file:
+      - .env
     environment:
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      #- POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_HOST_AUTH_METHOD= trust
+      #- POSTGRES_DB=${DATABASE_NAME}
+      #- POSTGRES_USER=${DATABASE_USER}
+      #- POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - pg_data:/var/lib/postgresql/data/pgdata
     ports:
@@ -30,7 +32,7 @@ services:
     env_file:
       - .env
     tty: true
-    command: python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
     ports:
       - '8001:8000'
@@ -41,19 +43,29 @@ services:
 
   celery:
     build: .
+    env_file:
+      - .env
     tty: true
-    command: celery -A config worker -l INFO
+    command: sh -c "sleep 5 && celery -A config worker -l INFO"
     depends_on:
       - redis
       - app
 
   celery_beat:
     build: .
+    env_file:
+      - .env
     tty: true
-    command: celery -A config beat -l info -S django
+    command: sh -c "sleep 10 && celery -A config beat -l info -S django"
     depends_on:
+      - celery
       - redis
       - app
+#    environment:
+#      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+#      - POSTGRES_DB=${DATABASE_NAME}
+#      - POSTGRES_USER=${DATABASE_USER}
+#      - POSTGRES_HOST=db
 
 volumes:
   pg_data:
