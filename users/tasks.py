@@ -7,7 +7,7 @@ import datetime
 from users.models import User
 
 
-@shared_task
+@shared_task(name='user_ban')
 def check_user():
     """
     Проверка пользователя на его активность:
