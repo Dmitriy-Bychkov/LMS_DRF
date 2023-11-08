@@ -1,0 +1,9 @@
+/.idea/
+/venv/
+/.env
+/.env.docker
+__pycache__/
+/staticfiles/
+*.pyc
+*.pyo
+*.pyd

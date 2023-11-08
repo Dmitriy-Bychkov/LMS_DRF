@@ -1,0 +1,93 @@
+version: '3'
+
+services:
+
+  redis:
+    image: redis
+
+  db:
+    image: postgres
+
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+    volumes:
+      - pg_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - '5433:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    tty: true
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    ports:
+      - '8001:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  celery:
+    build: .
+    tty: true
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
+    command: sh -c "celery -A config worker -l INFO"
+    depends_on:
+      - db
+      - redis
+
+  celery_beat:
+    build: .
+    tty: true
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
+    command: sh -c "celery -A config beat -l info -S django"
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  pg_data:
