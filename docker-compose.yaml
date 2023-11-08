@@ -4,19 +4,15 @@ services:
 
   redis:
     image: redis
-    ports:
-      - '6380:6379'
 
   db:
     image: postgres
-    env_file:
-      - .env
+
     environment:
-      #- POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/pgdata
-      #- POSTGRES_DB=${DATABASE_NAME}
-      #- POSTGRES_USER=${DATABASE_USER}
-      #- POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
     volumes:
       - pg_data:/var/lib/postgresql/data/pgdata
     ports:
@@ -29,9 +25,20 @@ services:
 
   app:
     build: .
-    env_file:
-      - .env
     tty: true
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
     ports:
@@ -40,32 +47,47 @@ services:
       db:
         condition: service_healthy
 
-
   celery:
     build: .
-    env_file:
-      - .env
     tty: true
-    command: sh -c "sleep 5 && celery -A config worker -l INFO"
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
+    command: sh -c "celery -A config worker -l INFO"
     depends_on:
+      - db
       - redis
-      - app
 
   celery_beat:
     build: .
-    env_file:
-      - .env
     tty: true
-    command: sh -c "sleep 10 && celery -A config beat -l info -S django"
+    environment:
+      - SECRET_KEY
+      - CACHE_ENABLED
+      - CACHE_LOCATION
+      - EMAIL_HOST_USER
+      - EMAIL_HOST_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_HOST
+      - SUPERUSER_PASSWORD
+      - STRIPE_PUBLISH_KEY
+      - STRIPE_SECRET_KEY
+    command: sh -c "celery -A config beat -l info -S django"
     depends_on:
-      - celery
       - redis
-      - app
-#    environment:
-#      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-#      - POSTGRES_DB=${DATABASE_NAME}
-#      - POSTGRES_USER=${DATABASE_USER}
-#      - POSTGRES_HOST=db
+      - db
 
 volumes:
   pg_data:
