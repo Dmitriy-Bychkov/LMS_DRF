@@ -9,8 +9,8 @@ from education.paginators import EducationPaginator
 from education.permissions import IsModeratorOrReadOnly, IsCourseOrLessonOwner, IsPaymentOwner, IsCourseOwner
 from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer, \
     PaymentCreateSerializer
+from users.helpers import is_moderator
 
-from users.models import UserRoles
 from education.tasks import subscriber_notify
 
 
@@ -24,7 +24,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """ Переопределяем queryset, чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Course.objects.none()
+        if is_moderator(self.request.user):
             return Course.objects.all()
         else:
             return Course.objects.filter(owner=self.request.user)
@@ -32,7 +34,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """ Переопределяем метод создания обьекта с условием, чтобы модераторы не могли создавать обьект """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if is_moderator(self.request.user):
             raise PermissionDenied("Вы не можете создавать новые курсы!")
         else:
             new_payment = serializer.save()
@@ -42,7 +44,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         """ Переопределяем метод удаления обьекта с условием, чтобы модераторы не могли удалять обьект """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if is_moderator(self.request.user):
             raise PermissionDenied("Вы не можете удалять курсы!")
         instance.delete()
 
@@ -56,7 +58,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         """ Переопределяем метод создания обьекта с условием, чтобы модераторы не могли создавать обьект """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if is_moderator(self.request.user):
             raise PermissionDenied("Вы не можете создать новый урок!")
         new_lesson = serializer.save()
         new_lesson.owner = self.request.user
@@ -76,7 +78,9 @@ class LessonListAPIView(generics.ListAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Lesson.objects.none()
+        if is_moderator(self.request.user):
             return Lesson.objects.all()
         else:
             return Lesson.objects.filter(owner=self.request.user)
@@ -91,7 +95,9 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Lesson.objects.none()
+        if is_moderator(self.request.user):
             return Lesson.objects.all()
         else:
             return Lesson.objects.filter(owner=self.request.user)
@@ -106,7 +112,9 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Lesson.objects.none()
+        if is_moderator(self.request.user):
             return Lesson.objects.all()
         else:
             return Lesson.objects.filter(owner=self.request.user)
@@ -129,7 +137,9 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Lesson.objects.none()
+        if is_moderator(self.request.user):
             return Lesson.objects.all()
         else:
             return Lesson.objects.filter(owner=self.request.user)
@@ -137,7 +147,7 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     def perform_destroy(self, instance):
         """ Переопределяем метод удаления обьекта с условием, чтобы модераторы не могли удалять обьект """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if is_moderator(self.request.user):
             raise PermissionDenied("Вы не можете удалять уроки!")
         instance.delete()
 
@@ -151,7 +161,7 @@ class PaymentsCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         """ Переопределяем метод создания обьекта с условием, чтобы модераторы не могли создавать обьект """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if is_moderator(self.request.user):
             raise PermissionDenied("Вы не можете создавать новые платежи!")
         else:
             new_payment = serializer.save()
@@ -173,7 +183,9 @@ class PaymentsListAPIView(generics.ListAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Payments.objects.none()
+        if is_moderator(self.request.user):
             return Payments.objects.all()
         else:
             return Payments.objects.filter(owner=self.request.user)
@@ -188,7 +200,9 @@ class PaymentsRetrieveAPIView(generics.RetrieveAPIView):
     def get_queryset(self):
         """ Переопределяем queryset чтобы доступ к обьекту имели только его владельцы и модератор """
 
-        if self.request.user.role == UserRoles.MODERATOR:
+        if self.request.user.is_anonymous:
+            return Payments.objects.none()
+        if is_moderator(self.request.user):
             return Payments.objects.all()
         else:
             return Payments.objects.filter(owner=self.request.user)
