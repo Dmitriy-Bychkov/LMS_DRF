@@ -7,7 +7,6 @@ services:
 
   db:
     image: postgres
-
     environment:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/pgdata
@@ -25,7 +24,6 @@ services:
 
   app:
     build: .
-    tty: true
     environment:
       - SECRET_KEY
       - CACHE_ENABLED
@@ -40,7 +38,6 @@ services:
       - STRIPE_PUBLISH_KEY
       - STRIPE_SECRET_KEY
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-
     ports:
       - '8001:8000'
     depends_on:
@@ -49,7 +46,6 @@ services:
 
   celery:
     build: .
-    tty: true
     environment:
       - SECRET_KEY
       - CACHE_ENABLED
@@ -70,7 +66,6 @@ services:
 
   celery_beat:
     build: .
-    tty: true
     environment:
       - SECRET_KEY
       - CACHE_ENABLED
